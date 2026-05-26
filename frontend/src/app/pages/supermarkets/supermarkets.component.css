@@ -1,0 +1,8 @@
+.mb-0 { margin-bottom: 0 !important; }
+    .flex-1 { flex: 1; }
+    .min-w-\[200px\] { min-width: 200px; }
+    .w-48 { width: 12rem; }
+    .h-full { height: 100%; }
+    .flex-grow { flex-grow: 1; }
+    .text-xs { font-size: 0.75rem; }
+    .supermarket-card { padding: 1.5rem; }

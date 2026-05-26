@@ -1,0 +1,8 @@
+.max-w-\[200px\] { max-width: 200px; }
+    .border-white\/10 { border-color: rgba(255, 255, 255, 0.1); }
+    .border-t { border-top-width: 1px; }
+    .pt-4 { padding-top: 1rem; }
+    .text-lg { font-size: 1.125rem; }
+    .text-xl { font-size: 1.25rem; }
+    .font-bold { font-weight: 700; }
+    .text-success { color: var(--success); }

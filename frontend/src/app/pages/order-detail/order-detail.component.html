@@ -1,0 +1,156 @@
+<div class="container py-8" *ngIf="order">
+      <div class="mb-6">
+        <a routerLink="/orders" class="text-primary hover:underline text-sm">&larr; Voltar às Encomendas</a>
+        <div class="flex items-center gap-4 mt-2">
+          <h2>Detalhes da Encomenda #{{ order._id.substring(order._id.length - 6) }}</h2>
+          <app-order-status-badge [status]="order.status"></app-order-status-badge>
+        </div>
+        <p class="text-muted">Data: {{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <div class="lg:col-span-2 space-y-6">
+          <div class="glass-card animate-fade-in">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-white/10">
+              <h3 class="m-0">Artigos</h3>
+              <button class="btn btn-danger btn-sm" *ngIf="canCancel()" (click)="cancelOrder()">Cancelar Encomenda</button>
+            </div>
+            
+            <div class="space-y-4">
+              <div *ngFor="let item of order.items" class="flex justify-between items-center pb-4 border-b border-white/5 last:border-0 last:pb-0">
+                <div>
+                  <h4 class="font-medium text-base mb-1">{{ item.name }}</h4>
+                  <div class="text-sm text-muted">{{ item.price | number:'1.2-2' }}€ x {{ item.quantity }}</div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                  <div class="font-bold">{{ (item.price * item.quantity) | number:'1.2-2' }}€</div>
+                  
+                  <button class="btn btn-outline btn-sm" 
+                    *ngIf="order.status === 'delivered' && (item.quantity - (item.returnedQuantity || 0)) > 0"
+                    (click)="openReturnModal(item)">
+                    Devolver
+                  </button>
+                  <span class="badge badge-warning text-xs" *ngIf="(item.returnedQuantity || 0) > 0">
+                    Devolvido/Pendente ({{ item.returnedQuantity }})
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Review Section -->
+          <div class="glass-card animate-fade-in delay-100" *ngIf="order.status === 'delivered'">
+            <h3 class="mb-4">Avaliação</h3>
+            
+            <div *ngIf="order.review">
+              <div class="mb-4">
+                <div class="font-medium mb-1">Supermercado: {{ order.supermarket?.name }}</div>
+                <app-star-rating [rating]="order.review.supermarketRating" [readonly]="true"></app-star-rating>
+                <p class="text-sm mt-2 text-muted" *ngIf="order.review.supermarketComment">"{{ order.review.supermarketComment }}"</p>
+              </div>
+              
+              <div *ngIf="order.deliveryMethod === 'courier'">
+                <div class="font-medium mb-1">Estafeta: {{ order.courier?.name || 'N/A' }}</div>
+                <app-star-rating [rating]="order.review.courierRating" [readonly]="true"></app-star-rating>
+                <p class="text-sm mt-2 text-muted" *ngIf="order.review.courierComment">"{{ order.review.courierComment }}"</p>
+              </div>
+            </div>
+            
+            <div *ngIf="!order.review && !reviewFormOpen">
+              <button class="btn btn-primary" (click)="reviewFormOpen = true">Deixar Avaliação</button>
+            </div>
+            
+            <div *ngIf="!order.review && reviewFormOpen">
+              <form (ngSubmit)="submitReview()" class="space-y-4">
+                <div class="form-group mb-0">
+                  <label class="form-label">Avaliação do Supermercado ({{ order.supermarket?.name }})</label>
+                  <app-star-rating [rating]="reviewData.supermarketRating" [readonly]="false" (ratingChange)="reviewData.supermarketRating = $event"></app-star-rating>
+                  <textarea class="form-control mt-2" [(ngModel)]="reviewData.supermarketComment" name="sc" rows="2" placeholder="Opcional: Deixa um comentário..."></textarea>
+                </div>
+                
+                <div class="form-group mb-0" *ngIf="order.deliveryMethod === 'courier'">
+                  <label class="form-label">Avaliação do Estafeta ({{ order.courier?.name || 'N/A' }})</label>
+                  <app-star-rating [rating]="reviewData.courierRating" [readonly]="false" (ratingChange)="reviewData.courierRating = $event"></app-star-rating>
+                  <textarea class="form-control mt-2" [(ngModel)]="reviewData.courierComment" name="cc" rows="2" placeholder="Opcional: Deixa um comentário..."></textarea>
+                </div>
+                
+                <div class="flex gap-2 pt-2">
+                  <button type="submit" class="btn btn-primary" [disabled]="reviewData.supermarketRating === 0 && reviewData.courierRating === 0">Submeter</button>
+                  <button type="button" class="btn btn-outline" (click)="reviewFormOpen = false">Cancelar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-1">
+          <div class="glass-panel animate-fade-in delay-200">
+            <h3 class="mb-4">Resumo</h3>
+            
+            <div class="flex justify-between text-sm mb-2 text-muted">
+              <span>Supermercado</span>
+              <span>{{ order.supermarket?.name }}</span>
+            </div>
+            
+            <div class="flex justify-between text-sm mb-2 text-muted">
+              <span>Método</span>
+              <span>{{ order.deliveryMethod === 'pickup' ? 'Levantamento' : 'Entrega por Estafeta' }}</span>
+            </div>
+            
+            <div class="flex justify-between text-sm mb-4 text-muted" *ngIf="order.deliveryMethod === 'courier'">
+              <span>Estafeta</span>
+              <span>{{ order.courier ? order.courier.name : 'A aguardar atribuição' }}</span>
+            </div>
+            
+            <hr class="border-white/10 my-4">
+            
+            <div class="flex justify-between text-sm mb-2">
+              <span>Subtotal Itens</span>
+              <span>{{ (order.total - order.deliveryCost) | number:'1.2-2' }}€</span>
+            </div>
+            
+            <div class="flex justify-between text-sm mb-4">
+              <span>Custo de Entrega</span>
+              <span>{{ order.deliveryCost | number:'1.2-2' }}€</span>
+            </div>
+            
+            <hr class="border-white/10 my-4">
+            
+            <div class="flex justify-between items-center">
+              <span class="text-lg font-bold">Total</span>
+              <span class="text-xl font-bold text-primary">{{ order.total | number:'1.2-2' }}€</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Return Modal (Simple implementation) -->
+    <div class="modal-overlay" *ngIf="returnItem">
+      <div class="modal-content glass-card animate-fade-in">
+        <h3 class="mb-4">Devolver Produto</h3>
+        <p class="mb-4"><strong>{{ returnItem.name }}</strong></p>
+        
+        <form (ngSubmit)="submitReturn()" class="space-y-4">
+          <div class="form-group mb-0">
+            <label class="form-label">Quantidade</label>
+            <input type="number" class="form-control" name="qty" [(ngModel)]="returnQty" min="1" [max]="returnItem.quantity - (returnItem.returnedQuantity || 0)">
+          </div>
+          
+          <div class="form-group mb-0">
+            <label class="form-label">Estado do Produto</label>
+            <select class="form-control" name="cond" [(ngModel)]="returnCondition">
+              <option value="good">Em Bom Estado (Arrependimento)</option>
+              <option value="damaged">Danificado/Com Defeito</option>
+            </select>
+          </div>
+          
+          <div class="flex gap-2 pt-4 justify-end">
+            <button type="button" class="btn btn-outline" (click)="returnItem = null">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Confirmar Devolução</button>
+          </div>
+        </form>
+      </div>
+    </div>

@@ -1,0 +1,125 @@
+<div class="container py-8">
+
+  <!-- ═══════════════════════ HERO SECTION ═══════════════════════ -->
+  <div class="hero glass-panel mb-8 text-center animate-fade-in">
+    <div class="hero-badge">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Marketplace Premium
+    </div>
+    <h1 class="hero-title text-gradient">Encontra os melhores produtos perto de ti</h1>
+    <p class="hero-subtitle text-muted">Compara preços de vários supermercados, faz a tua encomenda online e recebe em casa ou levanta na loja mais próxima.</p>
+    <div class="hero-actions">
+      <a routerLink="/supermarkets" class="btn btn-primary btn-lg">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Explorar Supermercados
+      </a>
+      <a routerLink="/products" class="btn btn-outline btn-lg">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Procurar Produtos
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="hero-stat-value">50+</span>
+        <span class="hero-stat-label">Supermercados</span>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-value">10k+</span>
+        <span class="hero-stat-label">Produtos</span>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-value">24h</span>
+        <span class="hero-stat-label">Entrega</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ PANELS GRID ═══════════════════════ -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+
+    <!-- Supermercados Perto de Ti -->
+    <div class="glass-card animate-fade-in delay-100">
+      <div class="section-header">
+        <h3>Supermercados Perto de Ti</h3>
+        <a routerLink="/supermarkets" class="section-link">Ver todos →</a>
+      </div>
+      <p class="text-muted mb-4">Descobre os supermercados no teu distrito com as melhores avaliações.</p>
+
+      <div class="store-list">
+        <div *ngIf="supermarkets.length === 0" class="text-muted text-sm">A carregar...</div>
+        <a *ngFor="let s of supermarkets | slice:0:3" [routerLink]="['/supermarkets', s._id]" class="store-item">
+          <div class="store-avatar" [style.background]="s._avatarBg">
+            {{ s._initial }}
+          </div>
+          <div class="store-info">
+            <div class="store-name">{{ s.name }}</div>
+            <div class="store-meta">
+              <span class="store-meta-item">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                {{ s._rating }}
+              </span>
+              <span class="store-meta-item">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                {{ s._delivery }} min
+              </span>
+              <span class="store-meta-item">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                {{ s._distance }} km
+              </span>
+            </div>
+          </div>
+          <span class="badge" [ngClass]="s.openNow ? 'badge-success' : 'badge-danger'">
+            {{ s.openNow ? 'Aberto' : 'Fechado' }}
+          </span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Categorias Populares -->
+    <div class="glass-card animate-fade-in delay-200">
+      <div class="section-header">
+        <h3>Categorias Populares</h3>
+        <a routerLink="/products" class="section-link">Pesquisa Avançada →</a>
+      </div>
+      <p class="text-muted mb-4">Encontra rapidamente o que precisas.</p>
+      <div class="categories-grid">
+        <div *ngIf="categories.length === 0" class="text-muted text-sm">A carregar...</div>
+        <a *ngFor="let c of categories | slice:0:10" [routerLink]="['/products']" [queryParams]="{category: c}" class="category-badge">
+          {{ c }}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ PRODUTOS EM DESTAQUE ═══════════════════════ -->
+  <div class="featured-section animate-fade-in delay-300" *ngIf="featuredProducts.length > 0">
+    <div class="section-header">
+      <h3>Produtos em Destaque</h3>
+      <a routerLink="/products" class="section-link">Ver Todos →</a>
+    </div>
+
+    <div class="products-grid">
+      <div *ngFor="let p of featuredProducts" class="product-card">
+        <div class="product-img-wrapper">
+          <img *ngIf="p.image" [src]="p.image" [alt]="p.name" class="product-img"/>
+          <div *ngIf="!p.image" class="product-img-placeholder">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+        </div>
+        <div class="product-body">
+          <span class="product-category">{{ p.category }}</span>
+          <div class="product-name">{{ p.name }}</div>
+          <div class="product-footer">
+            <span class="product-price">{{ p.price | currency:'EUR':'symbol':'1.2-2' }}</span>
+            <button class="cart-icon-btn" (click)="addToCart(p._id)" title="Adicionar ao carrinho">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

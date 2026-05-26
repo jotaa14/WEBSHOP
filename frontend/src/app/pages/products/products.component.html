@@ -1,0 +1,92 @@
+<div class="container py-8">
+      <div class="flex justify-between items-center mb-6 sm:flex-col sm:items-start sm:gap-4">
+        <h2>Produtos</h2>
+      </div>
+
+      <!-- Filters -->
+      <div class="glass-card mb-8 animate-fade-in">
+        <form (ngSubmit)="loadProducts()" class="flex flex-wrap gap-4 items-end">
+          <div class="form-group mb-0 flex-1 min-w-[200px]">
+            <label class="form-label">Pesquisar</label>
+            <input type="text" name="name" [(ngModel)]="filters.name" class="form-control" placeholder="Nome do produto...">
+          </div>
+          
+          <div class="form-group mb-0 w-48">
+            <label class="form-label">Categoria</label>
+            <select name="category" [(ngModel)]="filters.category" class="form-control">
+              <option value="">Todas</option>
+              <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+            </select>
+          </div>
+
+          <div class="form-group mb-0 w-48">
+            <label class="form-label">Supermercado</label>
+            <select name="supermarket" [(ngModel)]="filters.supermarket" class="form-control">
+              <option value="">Todos (no meu distrito)</option>
+              <option *ngFor="let s of supermarkets" [value]="s._id">{{ s.name }}</option>
+            </select>
+          </div>
+          
+          <div class="form-group mb-0 w-32">
+            <label class="form-label">Preço Máx (€)</label>
+            <input type="number" name="maxPrice" [(ngModel)]="filters.maxPrice" class="form-control" min="0" step="0.5">
+          </div>
+
+          <div class="form-group mb-0 w-48">
+            <label class="form-label">Ordenar</label>
+            <select name="sort" [(ngModel)]="filters.sort" class="form-control">
+              <option value="">Mais Recentes</option>
+              <option value="priceAsc">Preço: Menor p/ Maior</option>
+              <option value="priceDesc">Preço: Maior p/ Menor</option>
+              <option value="az">Nome (A-Z)</option>
+              <option value="za">Nome (Z-A)</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary" [disabled]="loading">Filtrar</button>
+        </form>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="text-center py-8 text-muted">A carregar produtos...</div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && products.length === 0" class="glass-panel text-center py-12 animate-fade-in">
+        <h3 class="text-muted">Nenhum produto encontrado</h3>
+        <p class="text-sm">Tenta alterar os filtros de pesquisa.</p>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6" *ngIf="!loading && products.length > 0">
+        <div *ngFor="let p of products" class="glass-card flex flex-col h-full animate-fade-in p-0 overflow-hidden">
+          <div class="product-img-wrapper" style="height: 180px; position: relative; width: 100%; border-radius: var(--radius-lg) var(--radius-lg) 0 0; overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2);">
+            <img *ngIf="p.image" [src]="p.image" [alt]="p.name" class="product-img" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;"/>
+            <div *ngIf="!p.image" class="product-img-placeholder" style="color: rgba(255,255,255,0.2);">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+          </div>
+          <div class="mb-4 flex-grow p-4 pb-0">
+            <div class="flex justify-between items-start mb-2">
+              <div class="badge badge-outline text-xs">{{ p.category }}</div>
+              <a [routerLink]="['/supermarkets', p.supermarket?._id]" class="text-xs text-primary hover:underline" *ngIf="p.supermarket">{{ p.supermarket?.name }}</a>
+            </div>
+            <h3 class="text-lg mb-1">{{ p.name }}</h3>
+            <p class="text-sm text-muted line-clamp-2">{{ p.description || 'Sem descrição.' }}</p>
+          </div>
+          
+          <div class="mt-auto p-4 pt-0">
+            <div class="flex justify-between items-center mb-4">
+              <span class="text-xl font-bold text-gradient">{{ p.price | number:'1.2-2' }}€</span>
+              <span class="text-xs" [ngClass]="p.stock > 0 ? 'text-success' : 'text-danger'">
+                {{ p.stock > 0 ? 'Em stock' : 'Esgotado' }}
+              </span>
+            </div>
+            
+            <button class="btn btn-primary w-full" (click)="addToCart(p)" [disabled]="p.stock <= 0">
+              Adicionar
+            </button>
+            <a [routerLink]="['/products/compare', p.name]" class="btn btn-outline w-full mt-2 btn-sm text-center">Comparar Preços</a>
+          </div>
+        </div>
+      </div>
+    </div>

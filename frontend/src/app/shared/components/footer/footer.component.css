@@ -1,0 +1,15 @@
+.footer {
+      background: rgba(15, 23, 42, 0.6);
+      border-top: 1px solid var(--bg-border);
+      padding: 1.5rem 0;
+      margin-top: auto;
+    }
+    
+    .links a {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    .links a:hover {
+      color: var(--text-main);
+    }

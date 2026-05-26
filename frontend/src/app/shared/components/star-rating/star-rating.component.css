@@ -1,0 +1,23 @@
+svg {
+      color: rgba(255, 255, 255, 0.2);
+      transition: all 0.2s ease;
+    }
+    
+    svg.filled {
+      color: var(--warning);
+      fill: var(--warning);
+    }
+    
+    svg.interactive {
+      cursor: pointer;
+    }
+    
+    svg.interactive:hover, .star-rating:not(.readonly) svg:hover ~ svg {
+      transform: scale(1.1);
+    }
+
+    .rating-text {
+      margin-left: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }

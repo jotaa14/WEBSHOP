@@ -1,0 +1,44 @@
+<nav class="navbar">
+      <div class="container flex justify-between items-center">
+        <a routerLink="/home" class="brand">
+          <span class="text-gradient">Marketplace</span>
+        </a>
+
+        <ul class="nav-links flex items-center gap-6" *ngIf="user">
+          <li><a routerLink="/home" routerLinkActive="active">Início</a></li>
+          <li><a routerLink="/supermarkets" routerLinkActive="active">Supermercados</a></li>
+          <li><a routerLink="/products" routerLinkActive="active">Produtos</a></li>
+        </ul>
+
+        <div class="nav-actions flex items-center gap-4" *ngIf="user">
+          <a routerLink="/cart" class="cart-btn" routerLinkActive="active">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+            <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+          </a>
+          
+          <div class="user-menu relative" (click)="toggleDropdown()">
+            <button class="user-btn flex items-center gap-2">
+              <div class="avatar">{{ user.name.charAt(0).toUpperCase() }}</div>
+              <span class="hidden md:block">{{ user.name.split(' ')[0] }}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            
+            <div class="dropdown-menu glass-card" [class.show]="dropdownOpen">
+              <a routerLink="/orders" class="dropdown-item">As Minhas Encomendas</a>
+              <a routerLink="/profile" class="dropdown-item">Perfil</a>
+              <div class="divider"></div>
+              <button (click)="logout()" class="dropdown-item text-danger w-full text-left">Terminar Sessão</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-actions flex gap-4" *ngIf="!user && (router.url === '/login' || router.url === '/register')">
+          <a routerLink="/login" class="btn btn-outline" *ngIf="router.url === '/register'">Login</a>
+          <a routerLink="/register" class="btn btn-primary" *ngIf="router.url === '/login'">Registar</a>
+        </div>
+      </div>
+    </nav>

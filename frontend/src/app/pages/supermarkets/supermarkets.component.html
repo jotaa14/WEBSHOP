@@ -1,0 +1,77 @@
+<div class="container py-8">
+      <div class="flex justify-between items-center mb-6 sm:flex-col sm:items-start sm:gap-4">
+        <h2>Supermercados no teu Distrito</h2>
+      </div>
+
+      <!-- Filters -->
+      <div class="glass-card mb-8 animate-fade-in">
+        <form (ngSubmit)="loadSupermarkets()" class="flex flex-wrap gap-4 items-end">
+          <div class="form-group mb-0 flex-1 min-w-[200px]">
+            <label class="form-label">Pesquisar por nome</label>
+            <input type="text" name="name" [(ngModel)]="filters.name" class="form-control" placeholder="Ex: Supermercado Central">
+          </div>
+          
+          <div class="form-group mb-0 w-48">
+            <label class="form-label">Aberto Agora</label>
+            <select name="openNow" [(ngModel)]="filters.openNow" class="form-control">
+              <option value="">Todos</option>
+              <option value="true">Sim</option>
+            </select>
+          </div>
+          
+          <div class="form-group mb-0 w-48">
+            <label class="form-label">Ordenar por</label>
+            <select name="sort" [(ngModel)]="filters.sort" class="form-control">
+              <option value="relevance">Relevância</option>
+              <option value="rating">Melhor Avaliação</option>
+              <option value="az">Nome (A-Z)</option>
+              <option value="za">Nome (Z-A)</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary" [disabled]="loading">Filtrar</button>
+        </form>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="text-center py-8">
+        <div class="text-muted">A carregar supermercados...</div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && supermarkets.length === 0" class="glass-panel text-center py-12 animate-fade-in delay-100">
+        <h3 class="text-muted">Nenhum supermercado encontrado</h3>
+        <p class="text-sm">Tenta alterar os filtros de pesquisa.</p>
+      </div>
+
+      <!-- Supermarket Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" *ngIf="!loading && supermarkets.length > 0">
+        <div *ngFor="let s of supermarkets; let i = index" class="glass-card supermarket-card animate-fade-in flex flex-col h-full" [ngStyle]="{'animation-delay': (i * 50) + 'ms'}">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h3 class="mb-1">{{ s.name }}</h3>
+              <p class="text-sm text-muted">{{ s.location }}, {{ s.city }}</p>
+            </div>
+            <span class="badge" [ngClass]="s.openNow ? 'badge-success' : 'badge-danger'">
+              {{ s.openNow ? 'Aberto' : 'Fechado' }}
+            </span>
+          </div>
+
+          <p class="text-sm mb-4 flex-grow">{{ s.description || 'Sem descrição.' }}</p>
+
+          <div class="flex justify-between items-center mt-auto mb-4">
+            <div class="flex gap-2">
+              <span class="badge badge-outline text-xs" *ngIf="s.deliveryMethods?.includes('pickup')">Pickup</span>
+              <span class="badge badge-outline text-xs" *ngIf="s.deliveryMethods?.includes('courier')">Entrega</span>
+            </div>
+            <app-star-rating [rating]="s.averageRating || 0" [showText]="true"></app-star-rating>
+          </div>
+
+          <div class="text-xs text-muted mb-4">
+            Horário: {{ s._formattedTime }}
+          </div>
+
+          <a [routerLink]="['/supermarkets', s._id]" class="btn btn-primary w-full text-center">Ver Produtos</a>
+        </div>
+      </div>
+    </div>

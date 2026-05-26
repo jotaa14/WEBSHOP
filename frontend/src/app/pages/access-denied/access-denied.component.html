@@ -1,0 +1,39 @@
+<div class="access-denied-wrapper">
+  <div class="denied-card animate-fade-in">
+    <div class="denied-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        <rect x="9" y="11" width="6" height="4" rx="1"></rect>
+      </svg>
+    </div>
+    
+    <h1 class="denied-title">Acesso Restrito</h1>
+    <div class="divider"></div>
+    
+    <p class="denied-text">
+      Esta aplicação web é exclusiva para <strong>clientes</strong>. 
+      Como supermercado, estafeta ou administrador, deves utilizar a plataforma de gestão do backoffice.
+    </p>
+
+    <div class="action-buttons">
+      <button (click)="goToBackend()" class="btn-go-app">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+          <polyline points="15 3 21 3 21 9"></polyline>
+          <line x1="10" y1="14" x2="21" y2="3"></line>
+        </svg>
+        Ir para a Plataforma de Gestão
+      </button>
+      
+      <button (click)="goBack()" class="btn-back">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Voltar ao login
+      </button>
+    </div>
+
+    <p class="auto-redirect">Serás redirecionado automaticamente em <span>{{ countdown }}</span> segundos...</p>
+  </div>
+</div>

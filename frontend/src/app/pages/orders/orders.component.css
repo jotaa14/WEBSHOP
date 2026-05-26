@@ -1,0 +1,11 @@
+.space-y-4 > * + * { margin-top: 1rem; }
+    .m-0 { margin: 0; }
+    .text-lg { font-size: 1.125rem; }
+    .font-medium { font-weight: 500; }
+    .font-bold { font-weight: 700; }
+    .text-primary { color: var(--primary-color); }
+    @media (min-width: 768px) {
+      .md\:flex-row { flex-direction: row; }
+      .md\:items-center { align-items: center; }
+      .md\:min-w-\[150px\] { min-width: 150px; }
+    }

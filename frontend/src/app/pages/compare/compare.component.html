@@ -1,0 +1,38 @@
+<div class="container py-8">
+      <div class="mb-6">
+        <a routerLink="/products" class="text-primary hover:underline text-sm">&larr; Voltar aos Produtos</a>
+        <h2 class="mt-2">Comparar Preços: <span class="text-gradient">{{ productName }}</span></h2>
+      </div>
+
+      <div *ngIf="loading" class="text-center py-8 text-muted">A procurar...</div>
+
+      <div *ngIf="!loading && products.length === 0" class="glass-panel text-center py-12 animate-fade-in">
+        <h3 class="text-muted">Nenhum produto encontrado</h3>
+        <p class="text-sm">Não encontrámos produtos exatos com este nome em stock.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" *ngIf="!loading && products.length > 0">
+        <div *ngFor="let p of products; let i = index" class="glass-card flex flex-col h-full animate-fade-in relative overflow-hidden" [ngClass]="{'best-price': i === 0}">
+          
+          <div *ngIf="i === 0" class="best-price-badge">
+            Melhor Preço
+          </div>
+
+          <div class="mb-4 flex-grow z-10">
+            <h3 class="text-lg mb-1">{{ p.supermarket?.name }}</h3>
+            <p class="text-sm text-muted">{{ p.supermarket?.city }}, {{ p.supermarket?.district }}</p>
+          </div>
+          
+          <div class="mt-auto z-10">
+            <div class="flex justify-between items-center mb-4">
+              <span class="text-2xl font-bold" [ngClass]="i === 0 ? 'text-success' : 'text-main'">{{ p.price | number:'1.2-2' }}€</span>
+              <span class="text-xs text-muted">Stock: {{ p.stock }}</span>
+            </div>
+            
+            <button class="btn w-full" [ngClass]="i === 0 ? 'btn-primary' : 'btn-outline'" (click)="addToCart(p)">
+              Comprar Aqui
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>

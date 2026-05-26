@@ -1,0 +1,18 @@
+.mb-0 { margin-bottom: 0 !important; }
+    .flex-1 { flex: 1; }
+    .min-w-\[200px\] { min-width: 200px; }
+    .w-48 { width: 12rem; }
+    .w-32 { width: 8rem; }
+    .h-full { height: 100%; }
+    .flex-grow { flex-grow: 1; }
+    .text-xs { font-size: 0.75rem; }
+    .text-lg { font-size: 1.125rem; }
+    .text-xl { font-size: 1.25rem; }
+    .font-bold { font-weight: 700; }
+    .text-success { color: var(--success); }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
