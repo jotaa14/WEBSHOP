@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avaliações dos Estafetas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 mb-1">Avaliações Estafetas</h1>
+      <p class="text-muted mb-0">O administrador pode consultar todas as classificações e comentários.</p>
+    </div>
+    <a href="/dashboard" class="btn btn-outline-secondary">Voltar à dashboard</a>
+  </div>
+
+  <% if (!reviews || reviews.length === 0) { %>
+    <div class="alert alert-info">Ainda não existem avaliações registadas.</div>
+  <% } else { %>
+    <% reviews.forEach(review => { %>
+      <div class="card shadow-sm mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center bg-light">
+           <h2 class="h5 mb-0">Avaliação da Encomenda #<%= review.order?._id || 'N/I' %></h2>
+           <form method="POST" action="/admin/reviews/delete/<%= review._id %>?_method=DELETE" onsubmit="return confirm('Tem a certeza que deseja apagar esta avaliação?')">
+             <button type="submit" class="btn btn-outline-danger btn-sm">Apagar Avaliação</button>
+           </form>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 border-end">
+              <h6 class="text-primary"><i class="bi bi-shop"></i> Supermercado: <%= review.supermarket?.name || 'N/I' %></h6>
+              <p class="mb-1"><strong>Classificação:</strong> <%= review.supermarketRating %>/5</p>
+              <p class="mb-0 text-muted italic">"<%= review.supermarketComment || 'Sem comentário.' %>"</p>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-success"><i class="bi bi-bicycle"></i> Estafeta: <%= review.courier?.name || 'N/I' %></h6>
+              <% if (review.courierRating) { %>
+                <p class="mb-1"><strong>Classificação:</strong> <%= review.courierRating %>/5</p>
+                <p class="mb-0 text-muted italic">"<%= review.courierComment || 'Sem comentário.' %>"</p>
+              <% } else { %>
+                <p class="text-muted">Sem avaliação de estafeta.</p>
+              <% } %>
+            </div>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between">
+            <small class="text-muted"><strong>Cliente:</strong> <%= review.customer?.name || 'N/I' %></small>
+            <small class="text-muted"><%= new Date(review.createdAt).toLocaleString('pt-PT') %></small>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  <% } %>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+</body>
+</html>

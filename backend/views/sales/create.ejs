@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Nova Venda</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+
+  <nav class="mb-4">
+    <a href="/dashboard" class="btn btn-secondary">Dashboard</a>
+    <a href="/sales" class="btn btn-outline-primary">Voltar às vendas</a>
+  </nav>
+
+  <h1 class="mb-4">Registar Nova Venda</h1>
+
+  <form method="GET" action="/sales/create" class="row g-2 mb-4">
+    <div class="col-md-5">
+      <input type="text" name="search" class="form-control" placeholder="Pesquisar produto por nome" value="<%= typeof search !== 'undefined' ? search : '' %>">
+    </div>
+    <div class="col-md-5">
+      <input type="email" name="customerEmail" class="form-control" placeholder="Pesquisar cliente por email" value="<%= typeof customerEmail !== 'undefined' ? customerEmail : '' %>">
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary w-100">Pesquisar</button>
+    </div>
+  </form>
+
+  <form method="POST" action="/sales/create">
+    <div class="card mb-4">
+      <div class="card-header">Cliente da Venda</div>
+      <div class="card-body">
+        <% if (customer) { %>
+          <div class="alert alert-success">
+            <h5 class="alert-heading">Cliente Encontrado: <%= customer.name %></h5>
+            <hr>
+            <p class="mb-1"><strong>Email:</strong> <%= customer.email %></p>
+            <p class="mb-1"><strong>NIF:</strong> <%= customer.nif %></p>
+            <p class="mb-1"><strong>Telefone:</strong> <%= customer.phone %></p>
+            <p class="mb-0"><strong>Morada:</strong> <%= customer.address %>, <%= customer.city %></p>
+            <input type="hidden" name="customerId" value="<%= customer._id %>">
+          </div>
+        <% } else if (customerEmail) { %>
+          <div class="alert alert-warning">Nenhum cliente registado com o email <strong><%= customerEmail %></strong>.</div>
+        <% } %>
+
+        <div class="form-check fs-5">
+          <input class="form-check-input" type="checkbox" name="isConsumidorFinal" value="true" id="isConsumidorFinal">
+          <label class="form-check-label" for="isConsumidorFinal">
+            Venda para <strong>Consumidor Final</strong> (Sem dados de cliente)
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header">Produtos</div>
+      <div class="card-body">
+        <% if (!products || products.length === 0) { %>
+          <p>Não existem produtos disponíveis.</p>
+        <% } else { %>
+          <% products.forEach(product => { %>
+            <div class="border rounded p-3 mb-3">
+              <h5><%= product.name %></h5>
+              <p class="mb-1"><strong>Preço:</strong> <%= Number(product.price).toFixed(2) %> €</p>
+              <p class="mb-2"><strong>Stock:</strong> <%= product.stock %></p>
+
+              <input type="hidden" name="productIds" value="<%= product._id %>">
+
+              <label class="form-label">Quantidade</label>
+              <input type="number" name="quantities" class="form-control" min="0" max="<%= product.stock %>" value="0">
+            </div>
+          <% }) %>
+        <% } %>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-success">Registar Venda</button>
+  </form>
+</body>
+</html>

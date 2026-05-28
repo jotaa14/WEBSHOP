@@ -52,7 +52,7 @@ A plataforma suporta quatro perfis de utilizador distintos:
 *   **Autenticação Dupla:** 
     *   `JWT (JSON Web Tokens)` para a API REST do Frontend.
     *   `Express-Session` para as interfaces administrativas do Backoffice.
-*   **Segurança:** Encriptação de passwords com Bcrypt, validações robustas e bloqueio estrito de papéis (Role-based access).
+*   **Segurança:** Encriptação de passwords com Bcryptjs, validações robustas e bloqueio estrito de papéis (Role-based access).
 *   **Documentação API:** Swagger UI (disponível na rota `/api-docs`).
 
 ---

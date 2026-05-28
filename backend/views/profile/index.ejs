@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+</head>
+<body class="container py-4">
+  <nav class="mb-4">
+    <a href="/dashboard" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Dashboard</a>
+  </nav>
+
+  <h1 class="h3 mb-4"><i class="bi bi-person-circle"></i> Perfil</h1>
+
+  <div class="row g-4">
+    <!-- Personal Info -->
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header"><strong>Informações pessoais</strong></div>
+        <div class="card-body">
+          <p class="mb-1"><strong>Nome:</strong> <%= user.name %></p>
+          <p class="mb-1"><strong>Email:</strong> <%= user.email %></p>
+          <p class="mb-1"><strong>Telefone:</strong> <%= user.phone %></p>
+          <p class="mb-1"><strong>NIF:</strong> <%= user.nif || 'N/I' %></p>
+          <p class="mb-1"><strong>Morada:</strong> <%= user.address || 'N/I' %></p>
+          <p class="mb-1"><strong>Cidade:</strong> <%= user.city || 'N/I' %></p>
+          <p class="mb-1"><strong>Distrito:</strong> <%= user.district %></p>
+          <p class="mb-1"><strong>Perfil:</strong>
+            <span class="badge bg-<%= user.role === 'admin' ? 'danger' : user.role === 'supermarket' ? 'success' : user.role === 'courier' ? 'info' : 'primary' %>">
+              <%= user.role %>
+            </span>
+          </p>
+          <% if (user.birthDate) { %>
+            <p class="mb-1"><strong>Data nascimento:</strong> <%= user.birthDate %></p>
+          <% } %>
+          <% if (user.role === 'courier') { %>
+            <hr>
+            <p class="mb-1"><strong>Veículo:</strong> <%= user.vehicleType || 'N/I' %></p>
+            <p class="mb-1"><strong>Marca:</strong> <%= user.vehicleBrand || 'N/I' %></p>
+            <p class="mb-1"><strong>Matrícula:</strong> <%= user.vehiclePlate || 'N/I' %></p>
+          <% } %>
+          <p class="mb-0 mt-2"><strong>Conta aprovada:</strong>
+            <% if (user.approved) { %>
+              <span class="badge bg-success">Sim</span>
+            <% } else { %>
+              <span class="badge bg-warning">Pendente</span>
+            <% } %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Change Password -->
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header"><strong><i class="bi bi-key"></i> Alterar password</strong></div>
+        <div class="card-body">
+          <form method="POST" action="/profile/change-password">
+            <div class="mb-3">
+              <label class="form-label">Password atual</label>
+              <input type="password" name="currentPassword" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Nova password</label>
+              <input type="password" name="newPassword" class="form-control" minlength="8" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Confirmar nova password</label>
+              <input type="password" name="confirmNewPassword" class="form-control" minlength="8" required>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Alterar Password</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Update Address/District -->
+  <div class="row mt-4" id="update-address">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white"><strong><i class="bi bi-geo-alt"></i> Atualizar Morada e Distrito</strong></div>
+        <div class="card-body">
+          <form method="POST" action="/profile/update">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Morada</label>
+                <input type="text" name="address" class="form-control" value="<%= user.address %>" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Cidade</label>
+                <input type="text" name="city" class="form-control" value="<%= user.city %>" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Distrito</label>
+                <select name="district" class="form-select" required>
+                  <% const districtsList = ['Aveiro', 'Beja', 'Braga', 'Bragança', 'Castelo Branco', 'Coimbra', 'Évora', 'Faro', 'Guarda', 'Leiria', 'Lisboa', 'Portalegre', 'Porto', 'Santarém', 'Setúbal', 'Viana do Castelo', 'Vila Real', 'Viseu', 'Madeira', 'Açores']; %>
+                  <% districtsList.forEach(d => { %>
+                    <option value="<%= d %>" <%= user.district === d ? 'selected' : '' %>><%= d %></option>
+                  <% }) %>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-success mt-3"><i class="bi bi-save"></i> Guardar Alterações</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order History -->
+  <% if (orders && orders.length > 0) { %>
+    <div class="card shadow-sm mt-4">
+      <div class="card-header">
+        <strong><i class="bi bi-clock-history"></i> Histórico de encomendas (últimas 20)</strong>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover table-sm align-middle mb-0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <% if (user.role === 'customer') { %>
+                  <th>Supermercado</th>
+                <% } else { %>
+                  <th>Cliente</th>
+                <% } %>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Método</th>
+                <th>Data</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% orders.forEach(order => { %>
+                <tr>
+                  <td><code class="small"><%= String(order._id).substring(0, 8) %>...</code></td>
+                  <% if (user.role === 'customer') { %>
+                    <td><%= order.supermarket && order.supermarket.name ? order.supermarket.name : 'N/A' %></td>
+                  <% } else { %>
+                    <td><%= order.customer ? order.customer.name : 'N/A' %></td>
+                  <% } %>
+                  <td><%= order.total ? order.total.toFixed(2) : '0.00' %> €</td>
+                  <td>
+                    <% const statusColors = { pending: 'warning', confirmed: 'info', preparing: 'primary', delivering: 'dark', delivered: 'success', cancelled: 'danger' }; %>
+                    <span class="badge bg-<%= statusColors[order.status] || 'secondary' %>"><%= order.status %></span>
+                  </td>
+                  <td><%= order.deliveryMethod || 'N/A' %></td>
+                  <td><%= order.createdAt ? new Date(order.createdAt).toLocaleDateString('pt-PT') : 'N/A' %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <% if (supermarket) { %>
+    <div class="card shadow-sm mt-4">
+      <div class="card-header"><strong><i class="bi bi-shop"></i> Dados do supermercado</strong></div>
+      <div class="card-body">
+        <p class="mb-1"><strong>Nome:</strong> <%= supermarket.name %></p>
+        <p class="mb-1"><strong>Localização:</strong> <%= supermarket.location %>, <%= supermarket.city %></p>
+        <p class="mb-1"><strong>Distrito:</strong> <%= supermarket.district %></p>
+        <p class="mb-1"><strong>Horário:</strong>
+          <%= String(supermarket.openingHour).padStart(2, '0') %>:<%= String(supermarket.openingMinute).padStart(2, '0') %>
+          – <%= String(supermarket.closingHour).padStart(2, '0') %>:<%= String(supermarket.closingMinute).padStart(2, '0') %>
+        </p>
+        <p class="mb-0"><strong>Avaliação:</strong> <%= supermarket.averageRating ? supermarket.averageRating.toFixed(1) : '0.0' %> / 5</p>
+      </div>
+    </div>
+  <% } %>
+</body>
+</html>

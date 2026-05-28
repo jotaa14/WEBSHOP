@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= supermarket.name %> — Detalhes</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+</head>
+<body class="container py-4">
+  <nav class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <a href="/customer/supermarkets" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Supermercados</a>
+      <a href="/dashboard" class="btn btn-outline-dark">Dashboard</a>
+    </div>
+    <a href="/customer/cart" class="btn btn-outline-primary">
+      <i class="bi bi-cart3"></i> Carrinho (<%= cartCount %>)
+    </a>
+  </nav>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+        <div>
+          <h1 class="h3 mb-1"><i class="bi bi-shop"></i> <%= supermarket.name %></h1>
+          <% if (supermarket.description) { %>
+            <p class="text-muted mb-1"><%= supermarket.description %></p>
+          <% } %>
+          <p class="mb-1"><i class="bi bi-geo-alt"></i> <%= supermarket.location %>, <%= supermarket.city %> — <%= supermarket.district %></p>
+          <p class="mb-1">
+            <i class="bi bi-clock"></i>
+            Horário: <%= String(supermarket.openingHour).padStart(2, '0') %>:<%= String(supermarket.openingMinute).padStart(2, '0') %>
+            – <%= String(supermarket.closingHour).padStart(2, '0') %>:<%= String(supermarket.closingMinute).padStart(2, '0') %>
+          </p>
+          <p class="mb-1">
+            <% if (isOpenNowValue) { %>
+              <span class="badge bg-success">Aberto agora</span>
+            <% } else { %>
+              <span class="badge bg-danger">Fechado</span>
+            <% } %>
+          </p>
+        </div>
+        <div class="text-end">
+          <% if (supermarket.averageRating > 0) { %>
+            <div class="fs-4">
+              <% for (let i = 1; i <= 5; i++) { %>
+                <i class="bi <%= i <= Math.round(supermarket.averageRating) ? 'bi-star-fill text-warning' : 'bi-star text-muted' %>"></i>
+              <% } %>
+            </div>
+            <small class="text-muted"><%= supermarket.averageRating.toFixed(1) %> / 5 (<%= supermarket.totalRatings %> avaliações)</small>
+            <div class="mt-1">
+              <a href="/customer/supermarkets/<%= supermarket._id %>/reviews" class="btn btn-sm btn-outline-warning"><i class="bi bi-chat-left-text"></i> Ver Avaliações</a>
+            </div>
+          <% } else { %>
+            <small class="text-muted">Sem avaliações</small>
+            <div class="mt-1">
+              <a href="/customer/supermarkets/<%= supermarket._id %>/reviews" class="btn btn-sm btn-outline-secondary disabled">Sem Avaliações</a>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+      <% if (supermarket.deliveryMethods && supermarket.deliveryMethods.length > 0) { %>
+        <hr>
+        <p class="mb-1"><strong>Métodos de entrega:</strong></p>
+        <ul class="mb-0">
+          <% if (supermarket.deliveryMethods.includes('pickup')) { %>
+            <li>Levantamento em loja — <%= (supermarket.pickupCost || 0) > 0 ? supermarket.pickupCost.toFixed(2) + ' €' : 'Grátis' %></li>
+          <% } %>
+          <% if (supermarket.deliveryMethods.includes('courier')) { %>
+            <li>Entrega por estafeta — <%= (supermarket.courierCost || 0).toFixed(2) %> €</li>
+          <% } %>
+        </ul>
+      <% } %>
+    </div>
+  </div>
+
+  <h2 class="h4 mb-3">Produtos disponíveis</h2>
+
+  <% if (!products || products.length === 0) { %>
+    <div class="alert alert-info">Não existem produtos disponíveis neste supermercado.</div>
+  <% } else { %>
+    <div class="row g-3">
+      <% products.forEach(product => { %>
+        <div class="col-md-4 col-lg-3">
+          <div class="card h-100 shadow-sm">
+            <% if (product.image) { %>
+              <img src="<%= product.image %>" class="card-img-top" alt="<%= product.name %>" style="height: 180px; object-fit: cover;">
+            <% } else { %>
+              <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                <i class="bi bi-box-seam fs-1 text-muted"></i>
+              </div>
+            <% } %>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title"><%= product.name %></h5>
+              <p class="text-muted mb-1"><small><%= product.category %></small></p>
+              <% if (product.description) { %>
+                <p class="card-text small"><%= product.description %></p>
+              <% } %>
+              <div class="mt-auto">
+                <p class="fw-bold mb-1"><%= product.price.toFixed(2) %> €</p>
+                <p class="small text-muted mb-2">Stock: <%= product.stock %></p>
+                <% if (product.stock > 0) { %>
+                  <form method="POST" action="/customer/cart/add" class="d-flex gap-1">
+                    <input type="hidden" name="productId" value="<%= product._id %>">
+                    <input type="number" name="quantity" value="1" min="1" max="<%= product.stock %>" class="form-control form-control-sm" style="width: 60px;">
+                    <button type="submit" class="btn btn-primary btn-sm flex-grow-1"><i class="bi bi-cart-plus"></i> Adicionar</button>
+                  </form>
+                  <a href="/customer/compare/<%= encodeURIComponent(product.name) %>" class="btn btn-outline-info btn-sm mt-1 w-100">
+                    <i class="bi bi-bar-chart"></i> Comparar preços
+                  </a>
+                <% } else { %>
+                  <button class="btn btn-secondary btn-sm w-100" disabled>Sem stock</button>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</body>
+</html>

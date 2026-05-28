@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>As Minhas Encomendas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+</head>
+<body class="container py-4">
+  <nav class="d-flex justify-content-between align-items-center mb-4">
+    <a href="/dashboard" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Dashboard</a>
+    <a href="/customer/cart" class="btn btn-outline-primary"><i class="bi bi-cart3"></i> Carrinho</a>
+  </nav>
+
+  <h1 class="h3 mb-4"><i class="bi bi-bag"></i> As Minhas Encomendas</h1>
+
+  <% if (!orders || orders.length === 0) { %>
+    <div class="alert alert-info">
+      <i class="bi bi-info-circle"></i> Ainda não tens encomendas. <a href="/customer/supermarkets" class="alert-link">Explorar supermercados</a>
+    </div>
+  <% } else { %>
+    <div class="d-flex flex-column gap-3">
+      <% orders.forEach(order => { %>
+        <div class="card shadow-sm">
+          <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+              <strong>Encomenda:</strong> <code class="small"><%= String(order._id).substring(0, 12) %>...</code>
+              <% const statusColors = { pending: 'warning', confirmed: 'info', preparing: 'primary', delivering: 'dark', delivered: 'success', cancelled: 'danger' }; %>
+              <% const statusLabels = { pending: 'Pendente', confirmed: 'Confirmada', preparing: 'Em preparação', delivering: 'Em entrega', delivered: 'Entregue', cancelled: 'Cancelada' }; %>
+              <span class="badge bg-<%= statusColors[order.status] || 'secondary' %>"><%= statusLabels[order.status] || order.status %></span>
+            </div>
+            <small class="text-muted"><%= order.createdAt ? new Date(order.createdAt).toLocaleString('pt-PT') : '' %></small>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <p class="mb-1"><strong>Supermercado:</strong> <%= order.supermarket && order.supermarket.name ? order.supermarket.name : 'N/A' %></p>
+                <p class="mb-1"><strong>Método de entrega:</strong>
+                  <% if (order.deliveryMethod === 'pickup') { %>
+                    <i class="bi bi-shop"></i> Levantamento em loja
+                  <% } else if (order.deliveryMethod === 'courier') { %>
+                    <i class="bi bi-bicycle"></i> Entrega por estafeta
+                  <% } else { %>
+                    N/A
+                  <% } %>
+                </p>
+                <% if (order.deliveryCost > 0) { %>
+                  <p class="mb-1"><strong>Custo de entrega:</strong> <%= order.deliveryCost.toFixed(2) %> €</p>
+                <% } %>
+                <% if (order.courier) { %>
+                  <p class="mb-1"><strong>Estafeta:</strong> <%= order.courier.name %></p>
+                <% } %>
+                <p class="mb-0"><strong>Total:</strong> <span class="fw-bold"><%= order.total.toFixed(2) %> €</span></p>
+              </div>
+              <div class="col-md-6">
+                <% if (order.items && order.items.length > 0) { %>
+                  <strong>Itens:</strong>
+                  <ul class="mb-0 small">
+                    <% order.items.forEach(item => { %>
+                      <li class="mb-2">
+                        <%= item.name %> — <%= item.quantity %> × <%= item.price.toFixed(2) %> € = <%= item.subtotal.toFixed(2) %> €
+                        <% if (order.status === 'delivered') { %>
+                          <% const availableToReturn = item.quantity - (item.returnedQuantity || 0); %>
+                          <% if (availableToReturn > 0) { %>
+                            <div class="mt-1">
+                              <form method="POST" action="/customer/orders/return" class="d-inline-flex gap-2 align-items-center flex-wrap">
+                                <input type="hidden" name="orderId" value="<%= order._id %>">
+                                <input type="hidden" name="productId" value="<%= item.product %>">
+                                <select name="condition" class="form-select form-select-sm" style="width: auto;" required>
+                                  <option value="" disabled selected>Motivo</option>
+                                  <option value="good">Artigo em bom estado</option>
+                                  <option value="damaged">Danificado / Avariado</option>
+                                </select>
+                                <input type="number" name="quantity" class="form-control form-control-sm" style="width: 70px;" min="1" max="<%= availableToReturn %>" value="1" required>
+                                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Confirmar pedido de devolução/reclamação?')">Devolver / Reclamar</button>
+                              </form>
+                            </div>
+                          <% } else { %>
+                            <span class="badge bg-secondary ms-2">Devolvido na totalidade</span>
+                          <% } %>
+                        <% } %>
+                      </li>
+                    <% }) %>
+                  </ul>
+                <% } %>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex gap-2 flex-wrap mt-3">
+              <% if (order.status === 'pending') { %>
+                <form method="POST" action="/customer/orders/<%= order._id %>/cancel" onsubmit="return confirm('Tens a certeza que queres cancelar esta encomenda?')">
+                  <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-x-circle"></i> Cancelar</button>
+                </form>
+              <% } %>
+
+              <% if (order.status === 'confirmed') { %>
+                <form method="POST" action="/customer/orders/<%= order._id %>/cancel" onsubmit="return confirm('Cancelar encomenda? Só é possível até 5 minutos após a confirmação.')">
+                  <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-x-circle"></i> Cancelar (até 5 min)</button>
+                </form>
+              <% } %>
+
+              <% if (order.status === 'delivered') { %>
+                <a href="/customer/orders/<%= order._id %>/review" class="btn btn-outline-warning btn-sm">
+                  <i class="bi bi-star"></i> Avaliar
+                </a>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</body>
+</html>

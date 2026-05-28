@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerir Encomendas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .order-card {
+      border: 1px solid #dee2e6;
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .order-details {
+      background: #f8f9fa;
+      border-top: 1px solid #dee2e6;
+      display: none;
+    }
+
+    .order-details.show {
+      display: block;
+    }
+
+    .mono {
+      font-family: monospace;
+      word-break: break-all;
+    }
+
+    .order-summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .summary-main {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+  </style>
+</head>
+<body class="container py-4">
+  <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+    <div>
+      <h1 class="h3 mb-1">Gerir encomendas</h1>
+      <p class="text-muted mb-0"><%= supermarket.name %> - <%= supermarket.district %></p>
+    </div>
+    <a href="/dashboard" class="btn btn-outline-secondary">Voltar à dashboard</a>
+  </div>
+
+  <div class="d-flex gap-2 flex-wrap mb-4">
+    <a href="/supermarket/orders/manage/pending" class="btn <%= activeTab === 'pending' ? 'btn-primary' : 'btn-outline-primary' %>">Encomendas pendentes</a>
+    <a href="/supermarket/orders/manage/confirmed" class="btn <%= activeTab === 'confirmed' ? 'btn-success' : 'btn-outline-success' %>">Encomendas confirmadas</a>
+    <a href="/supermarket/orders/manage/delivering" class="btn <%= activeTab === 'delivering' ? 'btn-warning' : 'btn-outline-warning' %>">Em entrega / Para Levantamento</a>
+    <a href="/supermarket/orders/manage/cancel" class="btn <%= activeTab === 'cancelled' ? 'btn-danger' : 'btn-outline-danger' %>">Cancelar encomenda</a>
+    <a href="/supermarket/orders/history" class="btn <%= activeTab === 'history' ? 'btn-info' : 'btn-outline-info' %>">Histórico</a>
+  </div>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <form method="GET" action="" class="row g-3 align-items-end">
+        <div class="col-lg-10">
+          <label for="search" class="form-label">Pesquisar encomenda</label>
+          <input
+            type="text"
+            id="search"
+            name="search"
+            class="form-control"
+            value="<%= search %>"
+            placeholder="ID da encomenda, NIF, nome do cliente, email ou morada"
+          >
+        </div>
+        <div class="col-lg-2 d-grid">
+          <button type="submit" class="btn btn-dark">Pesquisar</button>
+        </div>
+      </form>
+      <p class="text-muted mt-3 mb-0">Resultados: <strong><%= totalOrders %></strong>. Página <strong><%= currentPage %></strong> de <strong><%= totalPages %></strong>, com 25 encomendas por página.</p>
+    </div>
+  </div>
+
+  <% if (!orders || orders.length === 0) { %>
+    <div class="alert alert-info">Não foram encontradas encomendas para este filtro.</div>
+  <% } else { %>
+    <div class="d-flex flex-column gap-3">
+      <% orders.forEach((order, index) => { %>
+        <div class="order-card shadow-sm overflow-hidden">
+          <div class="p-3">
+            <div class="order-summary">
+              <div class="summary-main">
+                <span><strong>Encomenda:</strong> <span class="mono"><%= order._id %></span></span>
+                <span><strong>Cliente:</strong> <%= order.customer ? order.customer.name : 'Sem cliente' %></span>
+                <span><strong>Email:</strong> <%= order.customer ? order.customer.email : 'Sem email' %></span>
+                <span><strong>Método:</strong> <%= order.deliveryMethod === 'pickup' ? 'Levantamento' : 'Estafeta' %></span>
+                <span><strong>Estado:</strong> <span class="badge bg-secondary"><%= order.status %></span></span>
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-outline-dark btn-sm toggle-details-btn"
+                data-target="order-details-<%= index %>"
+                data-open="false"
+              >
+                Mostrar detalhes
+              </button>
+            </div>
+          </div>
+
+          <div id="order-details-<%= index %>" class="order-details p-3">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <p class="mb-1"><strong>Nome:</strong> <%= order.customer ? order.customer.name : 'Sem cliente' %></p>
+                <p class="mb-1"><strong>Email:</strong> <%= order.customer ? order.customer.email : 'Sem email' %></p>
+                <p class="mb-1"><strong>NIF:</strong> <%= order.customer ? order.customer.nif : 'Sem NIF' %></p>
+                <p class="mb-1"><strong>Morada:</strong> <%= order.customer && order.customer.address ? order.customer.address : 'Sem morada' %></p>
+                <p class="mb-1"><strong>Estafeta:</strong> <%= order.courier ? order.courier.name : 'Sem estafeta' %></p>
+                <p class="mb-0"><strong>Total:</strong> <%= order.totalPrice ?? 0 %> €</p>
+              </div>
+
+              <div class="col-md-6">
+                <p class="mb-1"><strong>Criada em:</strong> <%= order.createdAt ? new Date(order.createdAt).toLocaleString('pt-PT') : 'Sem data' %></p>
+                <p class="mb-1"><strong>Atualizada em:</strong> <%= order.updatedAt ? new Date(order.updatedAt).toLocaleString('pt-PT') : 'Sem data' %></p>
+                <p class="mb-2"><strong>ID:</strong> <span class="mono"><%= order._id %></span></p>
+
+                <% if (order.items && order.items.length > 0) { %>
+                  <div class="mb-3">
+                    <strong>Itens:</strong>
+                    <ul class="mt-2 mb-0">
+                      <% order.items.forEach(item => { %>
+                        <li><%= item.name %> - <%= item.quantity %> x <%= item.price %> € = <%= item.subtotal %> €</li>
+                      <% }) %>
+                    </ul>
+                  </div>
+                <% } %>
+
+                <div class="d-flex gap-2 flex-wrap">
+                  <% if (activeTab === 'pending' && order.status === 'pending') { %>
+                    <form action="/supermarket/orders/<%= order._id %>/accept" method="POST">
+                      <button type="submit" class="btn btn-success btn-sm">Aceitar</button>
+                    </form>
+                  <% } %>
+
+                  <% if (activeTab === 'confirmed' && order.status === 'confirmed') { %>
+                    <form action="/supermarket/orders/<%= order._id %>/preparing" method="POST">
+                      <button type="submit" class="btn btn-primary btn-sm">Colocar em preparação</button>
+                    </form>
+                  <% } %>
+
+                  <% if (activeTab === 'confirmed' && order.status === 'preparing') { %>
+                    <% if (order.deliveryMethod === 'pickup') { %>
+                      <form action="/supermarket/orders/<%= order._id %>/ready-for-pickup" method="POST">
+                        <button type="submit" class="btn btn-info btn-sm">Disponível para Levantamento</button>
+                      </form>
+                    <% } else { %>
+                      <form action="/supermarket/orders/<%= order._id %>/hand-to-courier" method="POST">
+                        <button type="submit" class="btn btn-warning btn-sm">Entregar ao estafeta</button>
+                      </form>
+                    <% } %>
+                  <% } %>
+
+                  <% if (activeTab === 'delivering' && order.status === 'ready_for_pickup' && order.deliveryMethod === 'pickup') { %>
+                    <form action="/supermarket/orders/<%= order._id %>/mark-delivered-pickup" method="POST">
+                      <button type="submit" class="btn btn-success btn-sm">Marcar como entregue (Levantamento)</button>
+                    </form>
+                  <% } %>
+
+                  <% if (activeTab === 'cancelled' && ['pending', 'confirmed', 'preparing', 'delivering'].includes(order.status)) { %>
+                    <form action="/supermarket/orders/<%= order._id %>/cancel" method="POST">
+                      <button type="submit" class="btn btn-danger btn-sm">Cancelar encomenda</button>
+                    </form>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <nav class="mt-4" aria-label="Paginação">
+      <ul class="pagination flex-wrap">
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+            <a class="page-link" href="?search=<%= encodeURIComponent(search) %>&page=<%= i %>"><%= i %></a>
+          </li>
+        <% } %>
+      </ul>
+    </nav>
+  <% } %>
+
+  <script>
+    document.querySelectorAll('.toggle-details-btn').forEach((button) => {
+      button.addEventListener('click', () => {
+        const targetId = button.getAttribute('data-target');
+        const details = document.getElementById(targetId);
+        const isOpen = button.getAttribute('data-open') === 'true';
+
+        if (isOpen) {
+          details.classList.remove('show');
+          button.setAttribute('data-open', 'false');
+          button.textContent = 'Mostrar detalhes';
+        } else {
+          details.classList.add('show');
+          button.setAttribute('data-open', 'true');
+          button.textContent = 'Ocultar detalhes';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
