@@ -88,17 +88,17 @@ npm start
 
 ## 🔑 Contas de Teste
 
-Podes usar as seguintes contas pré-configuradas para testar os diferentes fluxos da aplicação (a password para todas é `joaoribeiro`):
+Podes usar as seguintes contas pré-configuradas para testar os diferentes fluxos da aplicação (a password para todas é `password123`):
 
 | Perfil | Email | Onde Fazer Login |
 | :--- | :--- | :--- |
-| **Admin** | joao.jpmr16@gmail.com | [http://localhost:3000](http://localhost:3000) |
-| **Supermercado** | continentebraga@gmail.com | [http://localhost:3000](http://localhost:3000) |
-| **Supermercado** | pingodocebraga@gmail.com | [http://localhost:3000](http://localhost:3000) |
-| **Supermercado** | pingodoceporto@gmail.com | [http://localhost:3000](http://localhost:3000) |
-| **Estafeta** | trubin@gmail.com | [http://localhost:3000](http://localhost:3000) |
-| **Estafeta** | joaobaiao@gmail.com | [http://localhost:3000](http://localhost:3000) |
-| **Estafeta** | otamendi@gmail.com | [http://localhost:3000](http://localhost:3000) |
-| **Cliente** | fernandomadureira@gmail.com | [http://localhost:4200](http://localhost:4200) |
-| **Cliente** | josemourinho@gmail.com | [http://localhost:4200](http://localhost:4200) |
-| **Cliente** | brunolage@gmail.com | [http://localhost:4200](http://localhost:4200) |
+| **Admin** | admin@gmail.com | [http://localhost:3000](http://localhost:3000) |
+| **Supermercado** | supermercado1@gmail.com | [http://localhost:3000](http://localhost:3000) |
+| **Supermercado** | supermercado2@gmail.com | [http://localhost:3000](http://localhost:3000) |
+| **Supermercado** | supermercado3@gmail.com | [http://localhost:3000](http://localhost:3000) |
+| **Estafeta** | estafeta1@gmail.com | [http://localhost:3000](http://localhost:3000) |
+| **Estafeta** | estafeta2@gmail.com | [http://localhost:3000](http://localhost:3000) |
+| **Estafeta** | estafeta3@gmail.com | [http://localhost:3000](http://localhost:3000) |
+| **Cliente** | cliente1@gmail.com | [http://localhost:4200](http://localhost:4200) |
+| **Cliente** | cliente2@gmail.com | [http://localhost:4200](http://localhost:4200) |
+| **Cliente** | cliente3@gmail.com | [http://localhost:4200](http://localhost:4200) |
